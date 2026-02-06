@@ -3,6 +3,9 @@
 logfile="logfile.txt"
 echo ""
 timestamp=$(date +"%Y-%m-%d-%H-%M-%S")
+HOSTNAME=$(hostname)
+EMAIL_TO="venuvikas175@gmail.com"
+REPORT="/tmp/system_report.txt"
 
 echo "$timestamp"
 
@@ -32,7 +35,28 @@ function evaluate_cpu_usage() {
 
 function send_email_report() {
     echo -e "\nGenarating and sending report via Email..."
-    # Command here
+     {
+        echo "System Report"
+        echo "Host: $HOSTNAME"
+        echo "Date: $timestamp"
+        echo "=================================="
+        echo
+        echo "Disk Usage:"
+        df -h
+        echo
+        echo "Memory Usage:"
+        free -h
+        echo
+        echo "CPU Usage:"
+        top -bn1 | head -15
+        echo
+        echo "Running Services:"
+        systemctl list-units --type=service --state=running
+    } > "$REPORT"
+
+    mail -s "System Report - $HOSTNAME" "$EMAIL_TO" < "$REPORT"
+
+    echo "Email sent successfully."
     echo -e "\n"
 }
 
